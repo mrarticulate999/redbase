@@ -31,11 +31,12 @@ services:
       - key: DIRECT_URL
         sync: false                  # Neon DIRECT (non-pooled) string (migrations)
       # Per-account passwords — set strong unique values in the dashboard.
-      - key: ADMIN_PASSWORD
+      # Var name = USERNAME_PASSWORD (grantj05=admin, abehalim/rjlee=operators).
+      - key: GRANTJ05_PASSWORD
         sync: false
-      - key: OPERATOR1_PASSWORD
+      - key: ABEHALIM_PASSWORD
         sync: false
-      - key: OPERATOR2_PASSWORD
+      - key: RJLEE_PASSWORD
         sync: false
       # 32-byte hex key encrypting OAuth tokens at rest (keep stable once set).
       - key: TOKEN_ENCRYPTION_KEY

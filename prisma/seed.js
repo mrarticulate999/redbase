@@ -16,9 +16,9 @@ const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 // If a var is missing AND the user doesn't exist yet, a strong random password
 // is generated and printed ONCE so it can be recorded.
 const USERS = [
-  { username: 'admin', role: 'admin', envVar: 'ADMIN_PASSWORD' },
-  { username: 'operator1', role: 'operator', envVar: 'OPERATOR1_PASSWORD' },
-  { username: 'operator2', role: 'operator', envVar: 'OPERATOR2_PASSWORD' },
+  { username: 'grantj05', role: 'admin', envVar: 'GRANTJ05_PASSWORD' },
+  { username: 'abehalim', role: 'operator', envVar: 'ABEHALIM_PASSWORD' },
+  { username: 'rjlee', role: 'operator', envVar: 'RJLEE_PASSWORD' },
 ];
 
 function randomPassword() {
