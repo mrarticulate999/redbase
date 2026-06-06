@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #0a0a0c;
+  color: #e5e5e5;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin dark scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #33333f #101014;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #33333f;
+  border-radius: 4px;
+}
+
+@layer components {
+  .card {
+    @apply bg-base-850 border border-base-700 rounded-xl;
+  }
+  .input {
+    @apply w-full bg-base-900 border border-base-700 rounded-lg px-3 py-2 text-sm text-gray-100
+           placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent;
+  }
+  .label {
+    @apply block text-xs font-medium uppercase tracking-wide text-gray-400 mb-1;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+           transition-colors focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:opacity-50
+           disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-accent hover:bg-accent-dim text-white;
+  }
+  .btn-ghost {
+    @apply btn bg-base-800 hover:bg-base-700 text-gray-200 border border-base-700;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+}

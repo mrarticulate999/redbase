@@ -1,0 +1,38 @@
+# Render Blueprint for REDBASE.
+# One free web service hosts both the Express API and the built React client.
+# Database is a free Neon Postgres (set DATABASE_URL below as a secret).
+#
+# After connecting the repo in Render (New → Blueprint), set the `sync: false`
+# secrets in the dashboard: DATABASE_URL (from Neon) and, optionally, the Google
+# OAuth vars. CORS_ORIGIN can be left at the auto-filled service URL.
+
+services:
+  - type: web
+    name: redbase
+    runtime: node
+    plan: free
+    # --include=dev ensures the Prisma CLI is available during the build.
+    buildCommand: npm install --include=dev && npm run build
+    # Apply migrations + (idempotent) seed on every deploy, then start the API.
+    startCommand: npx prisma migrate deploy && node prisma/seed.js && node server/src/index.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true          # Render generates a strong secret
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: BCRYPT_SALT_ROUNDS
+        value: "12"
+      - key: DATABASE_URL
+        sync: false                  # paste your Neon connection string
+      - key: CORS_ORIGIN
+        sync: false                  # set to your https://<service>.onrender.com URL
+      - key: GOOGLE_CLIENT_ID
+        sync: false                  # optional (Calendar module)
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false                  # optional
+      - key: GOOGLE_REDIRECT_URI
+        sync: false                  # optional: https://<service>.onrender.com/api/calendar/oauth/callback
