@@ -11,8 +11,9 @@ services:
     name: redbase
     runtime: node
     plan: free
-    # --include=dev ensures the Prisma CLI is available during the build.
-    buildCommand: npm install --include=dev && npm run build
+    # --production=false forces devDeps (Vite, Tailwind, Prisma CLI) to install
+    # even when NODE_ENV=production. Both root and client deps need this.
+    buildCommand: npm install --production=false && npm --prefix client install --production=false && npm --prefix client run build && npx prisma generate
     # Apply migrations + (idempotent) seed on every deploy, then start the API.
     startCommand: npx prisma migrate deploy && node prisma/seed.js && node server/src/index.js
     healthCheckPath: /api/health
@@ -42,7 +43,7 @@ services:
       - key: TOKEN_ENCRYPTION_KEY
         sync: false
       - key: CORS_ORIGIN
-        sync: false                  # set to your https://<service>.onrender.com URL
+        value: "https://redbase-21zh.onrender.com"
       - key: GOOGLE_CLIENT_ID
         sync: false                  # optional (Calendar module)
       - key: GOOGLE_CLIENT_SECRET
