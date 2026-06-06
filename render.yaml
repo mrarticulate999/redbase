@@ -27,7 +27,9 @@ services:
       - key: BCRYPT_SALT_ROUNDS
         value: "12"
       - key: DATABASE_URL
-        sync: false                  # paste your Neon connection string
+        sync: false                  # Neon POOLED connection string (runtime)
+      - key: DIRECT_URL
+        sync: false                  # Neon DIRECT (non-pooled) string (migrations)
       - key: CORS_ORIGIN
         sync: false                  # set to your https://<service>.onrender.com URL
       - key: GOOGLE_CLIENT_ID
