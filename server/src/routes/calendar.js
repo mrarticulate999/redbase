@@ -5,6 +5,7 @@ const { google } = require('googleapis');
 const prisma = require('../lib/prisma');
 const { requireAuth } = require('../middleware/auth');
 const { verifyToken } = require('../lib/auth');
+const { encrypt, decrypt } = require('../lib/crypto');
 const asyncHandler = require('../lib/asyncHandler');
 
 const router = express.Router();
@@ -33,21 +34,22 @@ async function getAuthorizedClient(userId) {
   const stored = await prisma.googleToken.findUnique({ where: { userId } });
   if (!stored) return null;
 
+  const storedRefresh = stored.refreshToken ? decrypt(stored.refreshToken) : undefined;
   const oauth2 = makeOAuthClient();
   oauth2.setCredentials({
-    access_token: stored.accessToken,
-    refresh_token: stored.refreshToken || undefined,
+    access_token: decrypt(stored.accessToken),
+    refresh_token: storedRefresh,
     expiry_date: stored.expiresAt ? new Date(stored.expiresAt).getTime() : undefined,
   });
 
   // Refresh proactively if expired and we hold a refresh token.
-  if (stored.expiresAt && new Date(stored.expiresAt).getTime() < Date.now() + 60_000 && stored.refreshToken) {
+  if (stored.expiresAt && new Date(stored.expiresAt).getTime() < Date.now() + 60_000 && storedRefresh) {
     const { credentials } = await oauth2.refreshAccessToken();
     await prisma.googleToken.update({
       where: { userId },
       data: {
-        accessToken: credentials.access_token,
-        refreshToken: credentials.refresh_token || stored.refreshToken,
+        accessToken: encrypt(credentials.access_token),
+        refreshToken: encrypt(credentials.refresh_token || storedRefresh),
         expiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : stored.expiresAt,
       },
     });
@@ -101,14 +103,14 @@ router.get(
     await prisma.googleToken.upsert({
       where: { userId },
       update: {
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || undefined,
+        accessToken: encrypt(tokens.access_token),
+        refreshToken: tokens.refresh_token ? encrypt(tokens.refresh_token) : undefined,
         expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : new Date(Date.now() + 3600_000),
       },
       create: {
         userId,
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || null,
+        accessToken: encrypt(tokens.access_token),
+        refreshToken: tokens.refresh_token ? encrypt(tokens.refresh_token) : null,
         expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : new Date(Date.now() + 3600_000),
       },
     });

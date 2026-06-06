@@ -30,6 +30,16 @@ services:
         sync: false                  # Neon POOLED connection string (runtime)
       - key: DIRECT_URL
         sync: false                  # Neon DIRECT (non-pooled) string (migrations)
+      # Per-account passwords — set strong unique values in the dashboard.
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: OPERATOR1_PASSWORD
+        sync: false
+      - key: OPERATOR2_PASSWORD
+        sync: false
+      # 32-byte hex key encrypting OAuth tokens at rest (keep stable once set).
+      - key: TOKEN_ENCRYPTION_KEY
+        sync: false
       - key: CORS_ORIGIN
         sync: false                  # set to your https://<service>.onrender.com URL
       - key: GOOGLE_CLIENT_ID

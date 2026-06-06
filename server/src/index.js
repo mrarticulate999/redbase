@@ -9,6 +9,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 
 const prisma = require('./lib/prisma');
 const { requireAuth } = require('./middleware/auth');
@@ -24,10 +25,45 @@ const calendarRoutes = require('./routes/calendar');
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '4000', 10);
+const isProd = process.env.NODE_ENV === 'production';
+
+// Fail fast if the JWT secret is missing or weak — never run insecurely.
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  console.error('FATAL: JWT_SECRET must be set and at least 32 characters. Refusing to start.');
+  process.exit(1);
+}
 
 // --- Security & parsing middleware ---
+app.disable('x-powered-by');
 app.set('trust proxy', 1); // behind a reverse proxy (Railway/Render/Fly handle TLS)
-app.use(helmet({ contentSecurityPolicy: false })); // CSP disabled for SPA simplicity
+
+// Helmet security headers. A strict Content-Security-Policy is enabled in
+// production; it's relaxed in dev so Vite's HMR websocket/eval works.
+app.use(
+  helmet({
+    contentSecurityPolicy: isProd
+      ? {
+          directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            // React inline styles + Recharts require 'unsafe-inline' for styles only.
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", 'data:'],
+            fontSrc: ["'self'", 'data:'],
+            connectSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            frameAncestors: ["'none'"], // clickjacking protection
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+            upgradeInsecureRequests: [],
+          },
+        }
+      : false,
+    crossOriginEmbedderPolicy: false,
+    // HSTS: force HTTPS for a year (TLS terminates at the reverse proxy).
+    hsts: isProd ? { maxAge: 31536000, includeSubDomains: true } : false,
+  })
+);
 app.use(compression());
 
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
@@ -48,8 +84,19 @@ app.use(
 
 app.use(express.json({ limit: '1mb' }));
 
-// --- Health check ---
+// --- Health check (not rate-limited, used by the platform's probes) ---
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
+// --- Global API rate limit (blunts brute-force / scraping / DoS) ---
+// Login has its own stricter limiter in routes/auth.js.
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 600, // ~40 req/min per IP across the whole API
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please slow down and try again shortly.' },
+});
+app.use('/api', apiLimiter);
 
 // --- API routes ---
 app.use('/api/auth', authRoutes);

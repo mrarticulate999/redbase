@@ -6,14 +6,24 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
+const crypto = require('crypto');
+
 const prisma = new PrismaClient();
 const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 
+// Each account's password comes from an environment variable (a secret set in
+// .env locally and in the Render dashboard). No weak defaults are baked in.
+// If a var is missing AND the user doesn't exist yet, a strong random password
+// is generated and printed ONCE so it can be recorded.
 const USERS = [
-  { username: 'admin', password: 'password123', role: 'admin' },
-  { username: 'operator1', password: 'password123', role: 'operator' },
-  { username: 'operator2', password: 'password123', role: 'operator' },
+  { username: 'admin', role: 'admin', envVar: 'ADMIN_PASSWORD' },
+  { username: 'operator1', role: 'operator', envVar: 'OPERATOR1_PASSWORD' },
+  { username: 'operator2', role: 'operator', envVar: 'OPERATOR2_PASSWORD' },
 ];
+
+function randomPassword() {
+  return crypto.randomBytes(12).toString('base64').replace(/[+/=]/g, '');
+}
 
 // Learning tracks. OWASP LLM Top 10 has all 10; others have 5 curated items.
 const LEARNING = [
@@ -61,16 +71,37 @@ const LEARNING = [
 async function main() {
   console.log('Seeding REDBASE...');
 
-  // Users (upsert by username so passwords reset to known values on reseed).
+  // Users. Passwords come from env vars. Existing users are NEVER silently
+  // reset unless their env var is set (that's the deliberate rotation path),
+  // so deploys can't clobber credentials your team has in use.
+  const generated = [];
   for (const u of USERS) {
-    const passwordHash = await bcrypt.hash(u.password, SALT_ROUNDS);
-    await prisma.user.upsert({
-      where: { username: u.username },
-      update: { passwordHash, role: u.role },
-      create: { username: u.username, passwordHash, role: u.role },
-    });
+    const existing = await prisma.user.findUnique({ where: { username: u.username } });
+    const envPw = process.env[u.envVar];
+
+    if (existing) {
+      // Only update the password if an env var explicitly provides one (rotation).
+      if (envPw) {
+        await prisma.user.update({
+          where: { username: u.username },
+          data: { passwordHash: await bcrypt.hash(envPw, SALT_ROUNDS), role: u.role },
+        });
+      } else {
+        await prisma.user.update({ where: { username: u.username }, data: { role: u.role } });
+      }
+    } else {
+      const pw = envPw || randomPassword();
+      await prisma.user.create({
+        data: { username: u.username, passwordHash: await bcrypt.hash(pw, SALT_ROUNDS), role: u.role },
+      });
+      if (!envPw) generated.push({ username: u.username, password: pw });
+    }
   }
   console.log(`  ✓ ${USERS.length} users`);
+  if (generated.length) {
+    console.log('  ⚠ Generated passwords (set env vars to control these; shown only once):');
+    for (const g of generated) console.log(`     ${g.username}: ${g.password}`);
+  }
 
   // Learning items — keyed by (track, title) to stay idempotent.
   let order = {};
