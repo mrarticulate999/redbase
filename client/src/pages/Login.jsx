@@ -96,7 +96,7 @@ export default function Login() {
             <span className="font-mono font-bold tracking-widest text-gray-900 text-sm">REDBASE</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-1">Welcome back</h2>
           <p className="text-gray-400 text-sm mb-8">Sign in to your workspace</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">

@@ -45,11 +45,11 @@ export default function Clients() {
   const industries = [...new Set(clients.map(c => c.industry).filter(Boolean))];
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 lg:p-6">
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
+          <h1 className="text-xl font-bold text-gray-900">Clients</h1>
           <p className="text-sm text-gray-400 mt-0.5">CRM pipeline — {clients.length} total</p>
         </div>
         <button className="btn-primary" onClick={() => setAddOpen(true)}>+ Add Client</button>

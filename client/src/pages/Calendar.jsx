@@ -475,10 +475,10 @@ export default function Calendar() {
   }
 
   return (
-    <div className="p-6 lg:p-8 h-full flex flex-col">
+    <div className="p-4 lg:p-6 h-full flex flex-col">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
+          <h1 className="text-xl font-bold text-gray-900">Calendar</h1>
           <p className="text-sm text-gray-400 mt-0.5">Events, deadlines, and business milestones</p>
         </div>
       </div>

@@ -39,9 +39,9 @@ export default function Team() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 lg:p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Team</h1>
+        <h1 className="text-xl font-bold text-gray-900">Team</h1>
         <p className="text-sm text-gray-400 mt-0.5">Norwall Solutions — {members.length} member{members.length !== 1 ? 's' : ''}</p>
       </div>
 

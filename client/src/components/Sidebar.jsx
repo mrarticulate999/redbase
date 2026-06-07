@@ -62,18 +62,25 @@ function NavItem({ item, onClose }) {
       to={item.to}
       onClick={onClose}
       className={({ isActive }) =>
-        `group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150
+        `group relative flex items-center gap-3 rounded-md pl-3 pr-2.5 py-1.5 text-[13px] font-medium transition-all duration-150
         ${isActive
           ? 'bg-sidebar-active text-sidebar-active-text'
           : 'text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover'}`
       }
     >
-      {item.icon}
-      <span className="flex-1">{item.label}</span>
-      {item.badge && (
-        <span className="text-[9px] font-bold tracking-wider bg-accent/20 text-accent-glow px-1.5 py-0.5 rounded">
-          {item.badge}
-        </span>
+      {({ isActive }) => (
+        <>
+          {isActive && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-r bg-accent-glow shadow-[0_0_8px_rgb(34_197_94/0.6)]" />
+          )}
+          {item.icon}
+          <span className="flex-1">{item.label}</span>
+          {item.badge && (
+            <span className="console-label font-bold bg-accent/15 text-accent-glow px-1.5 py-0.5 rounded">
+              {item.badge}
+            </span>
+          )}
+        </>
       )}
     </NavLink>
   );
@@ -99,17 +106,20 @@ export default function Sidebar({ open, onClose }) {
           flex flex-col transition-transform duration-200 select-none
           ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 h-14 border-b border-sidebar-border shrink-0">
-          <div className="h-6 w-6 rounded bg-accent flex items-center justify-center shadow-green-glow">
-            <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5">
-              <rect x="1" y="1" width="6" height="6" rx="1" fill="white" />
-              <rect x="9" y="1" width="6" height="6" rx="1" fill="white" opacity="0.6" />
-              <rect x="1" y="9" width="6" height="6" rx="1" fill="white" opacity="0.6" />
-              <rect x="9" y="9" width="6" height="6" rx="1" fill="white" opacity="0.3" />
+        {/* Logo / brand mark */}
+        <div className="relative flex items-center gap-2.5 px-4 h-16 border-b border-sidebar-border shrink-0 bg-sidebar-glow">
+          <div className="h-8 w-8 rounded-lg bg-brand-gradient flex items-center justify-center shadow-brand-mark shrink-0">
+            <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
+              <rect x="1" y="1" width="6" height="6" rx="1.2" fill="white" />
+              <rect x="9" y="1" width="6" height="6" rx="1.2" fill="white" opacity="0.7" />
+              <rect x="1" y="9" width="6" height="6" rx="1.2" fill="white" opacity="0.7" />
+              <rect x="9" y="9" width="6" height="6" rx="1.2" fill="white" opacity="0.45" />
             </svg>
           </div>
-          <span className="font-mono font-bold tracking-[0.15em] text-sidebar-text text-sm">REDBASE</span>
+          <div className="min-w-0">
+            <div className="font-mono font-bold tracking-[0.18em] text-sidebar-text text-sm leading-none">REDBASE</div>
+            <div className="console-label text-sidebar-muted mt-1 leading-none">Norwall // Ops</div>
+          </div>
         </div>
 
         {/* Primary nav */}
@@ -134,12 +144,17 @@ export default function Sidebar({ open, onClose }) {
           )}
         </nav>
 
+        {/* Status strip */}
+        <div className="px-4 py-2 border-t border-sidebar-border shrink-0 flex items-center gap-2">
+          <span className="status-dot status-dot-pulse" />
+          <span className="console-label text-sidebar-muted">Systems Operational</span>
+        </div>
+
         {/* User profile */}
         <div className="border-t border-sidebar-border p-3 shrink-0">
           <div className="flex items-center gap-2.5 px-1 py-1 mb-2">
             <div
-              className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-              style={{ backgroundColor: '#16A34A' }}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 bg-brand-gradient"
             >
               {initials(user?.username || '?')}
             </div>

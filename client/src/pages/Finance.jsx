@@ -51,11 +51,11 @@ export default function Finance() {
   const marginColor = margin > 0 ? 'text-accent-dim' : 'text-red-600';
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 lg:p-6">
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Finance</h1>
+          <h1 className="text-xl font-bold text-gray-900">Finance</h1>
           <p className="text-sm text-gray-400 mt-0.5">Revenue, expenses &amp; margin (USD)</p>
         </div>
         <div className="flex gap-2">

@@ -63,11 +63,11 @@ export default function Tasks() {
   if (loading) return <div className="p-8"><Spinner label="Loading board…" /></div>;
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 lg:p-6">
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
+          <h1 className="text-xl font-bold text-gray-900">Tasks</h1>
           <p className="text-sm text-gray-400 mt-0.5">Kanban board · drag cards between columns</p>
         </div>
         <button className="btn-primary" onClick={() => { setEditing(null); setModalOpen(true); }}>

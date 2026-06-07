@@ -347,7 +347,7 @@ export default function Strategy() {
   const [tab, setTab] = useState('okr');
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 lg:p-6">
       <PageHeader title="Strategy" subtitle="OKRs, AI business intelligence, and long-horizon planning" />
 
       <div className="flex gap-1 bg-base-850 p-1 rounded-xl mb-6 w-fit">

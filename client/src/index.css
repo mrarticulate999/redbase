@@ -60,28 +60,28 @@ body {
 
 @layer components {
   .card {
-    @apply bg-white border border-base-700 rounded-xl shadow-card;
+    @apply bg-white border border-base-700 rounded-lg shadow-card;
   }
   .card-hover {
     @apply card transition-all duration-200 hover:shadow-card-hover hover:border-base-600/40 hover:-translate-y-0.5;
   }
   .input {
-    @apply w-full bg-white border border-base-700 rounded-lg px-3 py-2 text-sm text-gray-900
+    @apply w-full bg-white border border-base-700 rounded-md px-2.5 py-1.5 text-sm text-gray-900
            placeholder-gray-400 shadow-[inset_0_1px_2px_rgb(15_23_42/0.04)]
            focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent
            transition-all duration-150;
   }
   .label {
-    @apply block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1.5;
+    @apply block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-semibold
            tracking-tightish transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2
            focus:ring-offset-white active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
            disabled:active:scale-100;
   }
   .btn-primary {
-    @apply btn bg-accent hover:bg-accent-dim text-white focus:ring-accent/50 shadow-btn;
+    @apply btn bg-accent hover:bg-accent-dim text-white focus:ring-accent/50 shadow-btn hover:shadow-green-glow;
   }
   .btn-blue {
     @apply btn bg-brand-blue hover:bg-brand-blue-dim text-white focus:ring-brand-blue/50 shadow-btn;
@@ -111,6 +111,27 @@ body {
     @apply badge bg-base-850 text-gray-600;
   }
   .section-header {
-    @apply text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-3;
+    @apply text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2.5;
   }
+
+  /* ── Brand / console identity ───────────────────────────────────────── */
+  .brand-text {
+    @apply bg-brand-gradient-soft bg-clip-text text-transparent;
+  }
+  .console-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em];
+  }
+  /* Live status pill (e.g. SYSTEMS OPERATIONAL) */
+  .status-dot {
+    @apply h-1.5 w-1.5 rounded-full bg-accent-glow;
+    box-shadow: 0 0 0 3px rgb(34 197 94 / 0.18);
+  }
+  .status-dot-pulse {
+    animation: status-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }

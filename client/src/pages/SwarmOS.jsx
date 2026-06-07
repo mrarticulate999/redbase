@@ -88,7 +88,7 @@ export default function SwarmOS() {
   ];
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 lg:p-6">
       <PageHeader title="Swarm OS" subtitle="Agentic operations system — departmental AI swarms">
         <span className="badge bg-amber-50 text-amber-700 border border-amber-200 text-xs px-3 py-1">
           ⚡ Phase 2 — Backend Coming Soon

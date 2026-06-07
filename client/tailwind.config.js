@@ -50,6 +50,15 @@ export default {
         'card-hover': '0 6px 20px -4px rgb(15 23 42 / 0.12), 0 2px 6px -2px rgb(15 23 42 / 0.06)',
         'green-glow': '0 0 0 1px rgb(22 163 74 / 0.2), 0 4px 14px -2px rgb(22 163 74 / 0.35)',
         'btn': '0 1px 2px 0 rgb(15 23 42 / 0.08)',
+        'brand-mark': '0 0 0 1px rgb(34 197 94 / 0.25), 0 4px 16px -4px rgb(34 197 94 / 0.45)',
+      },
+      backgroundImage: {
+        // Brand signature — green→blue, the "Norwall / REDBASE" identity
+        'brand-gradient': 'linear-gradient(135deg, #16A34A 0%, #15803D 45%, #1D4ED8 100%)',
+        'brand-gradient-soft': 'linear-gradient(135deg, #22C55E 0%, #2563EB 100%)',
+        // Subtle radial glow for the console sidebar header
+        'sidebar-glow': 'radial-gradient(130% 70% at 50% -10%, rgba(34,197,94,0.12), transparent 65%)',
+        'grid-faint': 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
       },
     },
   },
