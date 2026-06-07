@@ -32,11 +32,33 @@ function buildMonthGrid(year, month) {
 }
 
 // ── Events sub-tab ─────────────────────────────────────────────────────────
-function EventsCalendar({ events, status, onConnect, onDisconnect, loading, error, onRetry }) {
+function EventsCalendar({ status, onConnect, onDisconnect }) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [selected, setSelected] = useState(today);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const connected = status?.connected;
+
+  // Fetch events for the month currently in view (not a fixed 2-week window).
+  const loadMonth = useCallback(async () => {
+    if (!connected) return;
+    setLoading(true); setError(null);
+    try {
+      const timeMin = new Date(year, month, 1).toISOString();
+      const timeMax = new Date(year, month + 1, 1).toISOString();
+      const { events } = await api.get(
+        `/calendar/events?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}`
+      );
+      setEvents(events);
+    } catch (err) { setError(err); }
+    finally { setLoading(false); }
+  }, [connected, year, month]);
+
+  useEffect(() => { loadMonth(); }, [loadMonth]);
 
   const cells = buildMonthGrid(year, month);
 
@@ -55,9 +77,6 @@ function EventsCalendar({ events, status, onConnect, onDisconnect, loading, erro
     if (month === 11) { setYear(y => y + 1); setMonth(0); }
     else setMonth(m => m + 1);
   }
-
-  if (loading) return <Spinner label="Loading calendar…" />;
-  if (error) return <ErrorBanner error={error} onRetry={onRetry} />;
 
   if (!status?.configured) return (
     <EmptyState title="Google Calendar not configured" hint="Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your environment to enable this module." />
@@ -87,11 +106,15 @@ function EventsCalendar({ events, status, onConnect, onDisconnect, loading, erro
           <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-base-850 text-gray-500 hover:text-gray-900 transition-colors">
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" /></svg>
           </button>
-          <h2 className="text-sm font-semibold text-gray-900">{MONTHS[month]} {year}</h2>
+          <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            {MONTHS[month]} {year}
+            {loading && <span className="text-[10px] font-normal text-gray-400 animate-pulse">loading…</span>}
+          </h2>
           <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-base-850 text-gray-500 hover:text-gray-900 transition-colors">
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" /></svg>
           </button>
         </div>
+        {error && <div className="px-5 pt-3"><ErrorBanner error={error} onRetry={loadMonth} /></div>}
 
         {/* Weekday headers */}
         <div className="grid grid-cols-7 border-b border-base-700">
@@ -426,36 +449,29 @@ export default function Calendar() {
   const [tab, setTab] = useState('events');
   const [params, setParams] = useSearchParams();
   const [status, setStatus] = useState(null);
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [statusError, setStatusError] = useState(null);
 
-  const loadEvents = useCallback(async () => {
-    setLoading(true); setError(null);
+  const loadStatus = useCallback(async () => {
+    setStatusError(null);
     try {
       const st = await api.get('/calendar/status');
       setStatus(st);
-      if (st.connected) {
-        const { events } = await api.get('/calendar/events');
-        setEvents(events);
-      }
-    } catch (err) { setError(err); }
-    finally { setLoading(false); }
+    } catch (err) { setStatusError(err); }
   }, []);
 
-  useEffect(() => { loadEvents(); }, [loadEvents]);
+  useEffect(() => { loadStatus(); }, [loadStatus]);
 
   const googleParam = params.get('google');
   useEffect(() => {
-    if (googleParam) { setParams({}, { replace: true }); loadEvents(); }
-  }, [googleParam, setParams, loadEvents]);
+    if (googleParam) { setParams({}, { replace: true }); loadStatus(); }
+  }, [googleParam, setParams, loadStatus]);
 
   async function connect() {
     try { const { url } = await api.get('/calendar/oauth/url'); window.location.href = url; }
-    catch (err) { setError(err); }
+    catch (err) { setStatusError(err); }
   }
   async function disconnect() {
-    await api.del('/calendar/disconnect'); setEvents([]); loadEvents();
+    await api.del('/calendar/disconnect'); loadStatus();
   }
 
   return (
@@ -480,11 +496,9 @@ export default function Calendar() {
 
       <div className="flex-1 min-h-0">
         {tab === 'events' && (
-          <EventsCalendar
-            events={events} status={status}
-            onConnect={connect} onDisconnect={disconnect}
-            loading={loading} error={error} onRetry={loadEvents}
-          />
+          statusError ? <ErrorBanner error={statusError} onRetry={loadStatus} />
+          : status === null ? <Spinner label="Loading calendar…" />
+          : <EventsCalendar status={status} onConnect={connect} onDisconnect={disconnect} />
         )}
         {tab === 'tasks' && <TasksCalendar />}
         {tab === 'planning' && <PlanningCalendar />}

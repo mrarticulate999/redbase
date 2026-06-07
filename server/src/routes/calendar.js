@@ -139,7 +139,9 @@ router.delete(
   })
 );
 
-// Fetch this week + next week events for the connected user.
+// Fetch events for the connected user. Defaults to this week + next week,
+// but accepts ?timeMin & ?timeMax (ISO) to fetch an arbitrary range (e.g. the
+// month the user is currently viewing in the calendar grid).
 router.get(
   '/events',
   requireAuth,
@@ -149,14 +151,21 @@ router.get(
       return res.status(409).json({ error: 'Google Calendar not connected.', connected: false });
     }
 
-    // Start of this week (Monday) → end of next week (Sunday).
-    const now = new Date();
-    const day = (now.getUTCDay() + 6) % 7; // 0 = Monday
-    const start = new Date(now);
-    start.setUTCDate(now.getUTCDate() - day);
-    start.setUTCHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setUTCDate(start.getUTCDate() + 14);
+    let start, end;
+    const { timeMin, timeMax } = req.query;
+    if (timeMin && timeMax && !Number.isNaN(Date.parse(timeMin)) && !Number.isNaN(Date.parse(timeMax))) {
+      start = new Date(timeMin);
+      end = new Date(timeMax);
+    } else {
+      // Default: start of this week (Monday) → end of next week (Sunday).
+      const now = new Date();
+      const day = (now.getUTCDay() + 6) % 7; // 0 = Monday
+      start = new Date(now);
+      start.setUTCDate(now.getUTCDate() - day);
+      start.setUTCHours(0, 0, 0, 0);
+      end = new Date(start);
+      end.setUTCDate(start.getUTCDate() + 14);
+    }
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2 });
     const { data } = await calendar.events.list({
