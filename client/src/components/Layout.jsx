@@ -27,7 +27,7 @@ export default function Layout() {
           <span className="font-mono font-bold tracking-widest text-gray-900 text-sm">REDBASE</span>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-base-850">
           <Outlet />
         </main>
       </div>

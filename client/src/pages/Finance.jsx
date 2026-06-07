@@ -84,20 +84,24 @@ export default function Finance() {
         {monthly.length === 0 ? (
           <p className="text-sm text-gray-400 py-12 text-center">Add income or expense entries to populate the chart.</p>
         ) : (
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={monthly} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-              <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} tickFormatter={v => `$${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} />
-              <Tooltip
-                contentStyle={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 4px 12px rgb(0 0 0/0.1)' }}
-                formatter={v => usd(v)} labelStyle={{ fontWeight: 600, color: '#111827' }}
-              />
-              <Legend wrapperStyle={{ fontSize: 12, color: '#6B7280' }} />
-              <Bar dataKey="income" name="Income" fill="#16A34A" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expense" name="Expense" fill="#EF4444" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ width: '100%', height: 280 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthly} barGap={6} barCategoryGap="30%" margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} width={48}
+                  domain={[0, 'auto']} tickFormatter={v => `$${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} />
+                <Tooltip
+                  cursor={{ fill: 'rgb(15 23 42 / 0.04)' }}
+                  contentStyle={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 4px 12px rgb(0 0 0/0.1)' }}
+                  formatter={v => usd(v)} labelStyle={{ fontWeight: 600, color: '#111827' }}
+                />
+                <Legend wrapperStyle={{ fontSize: 12, color: '#6B7280' }} />
+                <Bar dataKey="income" name="Income" fill="#16A34A" radius={[4, 4, 0, 0]} maxBarSize={64} isAnimationActive={false} />
+                <Bar dataKey="expense" name="Expense" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={64} isAnimationActive={false} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
 
