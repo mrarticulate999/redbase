@@ -2,7 +2,7 @@ const express = require('express');
 const { body, param } = require('express-validator');
 const prisma = require('../lib/prisma');
 const { requireAuth } = require('../middleware/auth');
-const { validate } = require('../middleware/validate');
+const { handleValidation } = require('../middleware/validate');
 const asyncHandler = require('../lib/asyncHandler');
 
 const router = express.Router();
@@ -25,7 +25,7 @@ router.post('/',
     body('description').optional().trim(),
     body('status').optional().isIn(['planned', 'in-progress', 'done']),
   ],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     const { title, date, category, timeframe, description, status } = req.body;
     const milestone = await prisma.milestone.create({
@@ -46,7 +46,7 @@ router.post('/',
 
 router.patch('/:id',
   [param('id').isUUID()],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     const existing = await prisma.milestone.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Milestone not found.' });
@@ -70,7 +70,7 @@ router.patch('/:id',
 
 router.delete('/:id',
   [param('id').isUUID()],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     const existing = await prisma.milestone.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Milestone not found.' });

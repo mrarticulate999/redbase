@@ -2,7 +2,7 @@ const express = require('express');
 const { body, param } = require('express-validator');
 const prisma = require('../lib/prisma');
 const { requireAuth } = require('../middleware/auth');
-const { validate } = require('../middleware/validate');
+const { handleValidation } = require('../middleware/validate');
 const asyncHandler = require('../lib/asyncHandler');
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router.post('/',
     body('title').trim().notEmpty().withMessage('Title is required'),
     body('timeframe').isIn(['quarterly', 'annual']).withMessage('Timeframe must be quarterly or annual'),
   ],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     const { title, timeframe, status } = req.body;
     const objective = await prisma.objective.create({
@@ -42,7 +42,7 @@ router.post('/',
 
 router.patch('/:id',
   [param('id').isUUID()],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     const { title, timeframe, status } = req.body;
     const objective = await prisma.objective.update({
@@ -60,7 +60,7 @@ router.patch('/:id',
 
 router.delete('/:id',
   [param('id').isUUID()],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     await prisma.objective.delete({ where: { id: req.params.id } });
     res.json({ ok: true });
@@ -75,7 +75,7 @@ router.post('/:id/results',
     body('target').isFloat({ min: 0 }),
     body('unit').optional().trim(),
   ],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     const { title, target, unit, current } = req.body;
     const kr = await prisma.keyResult.create({
@@ -93,7 +93,7 @@ router.post('/:id/results',
 
 router.patch('/results/:krId',
   [param('krId').isUUID()],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     const { title, target, current, unit } = req.body;
     const kr = await prisma.keyResult.update({
@@ -111,7 +111,7 @@ router.patch('/results/:krId',
 
 router.delete('/results/:krId',
   [param('krId').isUUID()],
-  validate,
+  handleValidation,
   asyncHandler(async (req, res) => {
     await prisma.keyResult.delete({ where: { id: req.params.krId } });
     res.json({ ok: true });
