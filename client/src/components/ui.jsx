@@ -29,12 +29,19 @@ export function ErrorBanner({ error, onRetry }) {
   );
 }
 
-export function EmptyState({ title, hint, icon }) {
+export function EmptyState({ title, hint, icon, action, className = '' }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      {icon && <div className="mb-4 text-gray-300">{icon}</div>}
+    <div className={`flex flex-col items-center justify-center py-14 text-center ${className}`}>
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-base-800 border border-base-700 text-gray-400">
+        {icon || (
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+          </svg>
+        )}
+      </div>
       <p className="font-semibold text-gray-700">{title}</p>
-      {hint && <p className="mt-1 text-sm text-gray-400">{hint}</p>}
+      {hint && <p className="mt-1 text-sm text-gray-400 max-w-sm">{hint}</p>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
@@ -75,8 +82,8 @@ export function PageHeader({ title, subtitle, children }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-        {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+        <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+        {subtitle && <p className="text-sm text-gray-400 mt-0.5">{subtitle}</p>}
       </div>
       {children && <div className="flex items-center gap-2">{children}</div>}
     </div>

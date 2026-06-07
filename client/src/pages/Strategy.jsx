@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '../lib/api';
-import { Spinner, ErrorBanner, Modal, PageHeader } from '../components/ui';
+import { Spinner, ErrorBanner, Modal, PageHeader, EmptyState } from '../components/ui';
 
 const TIMEFRAME_LABELS = { short: 'Short-term', mid: 'Mid-term', long: 'Long-term' };
 const TIMEFRAME_COLORS = {
@@ -73,10 +73,10 @@ function OKRSection() {
   const annual = objectives.filter(o => o.timeframe === 'annual');
 
   function ObjGroup({ title, items }) {
+    if (items.length === 0) return null;
     return (
       <div>
         <p className="section-header mb-3">{title}</p>
-        {items.length === 0 && <p className="text-sm text-gray-400 mb-4">No objectives — <button onClick={() => setShowObjModal(true)} className="text-accent hover:underline">add one</button></p>}
         <div className="space-y-3 mb-6">
           {items.map(obj => {
             const krs = obj.keyResults || [];
@@ -144,11 +144,28 @@ function OKRSection() {
 
   return (
     <div>
-      <div className="flex justify-end mb-4">
+      <div className="flex items-center justify-between mb-5">
+        <p className="text-sm text-gray-500">
+          {objectives.length} objective{objectives.length !== 1 ? 's' : ''} tracked
+        </p>
         <button onClick={() => setShowObjModal(true)} className="btn-primary">+ New Objective</button>
       </div>
-      <ObjGroup title="Quarterly" items={quarterly} />
-      <ObjGroup title="Annual" items={annual} />
+
+      {objectives.length === 0 ? (
+        <div className="card">
+          <EmptyState
+            title="No objectives yet"
+            hint="Define quarterly and annual objectives with measurable key results, so the whole team knows what success looks like."
+            icon={<svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></svg>}
+            action={<button onClick={() => setShowObjModal(true)} className="btn-primary">+ Create your first objective</button>}
+          />
+        </div>
+      ) : (
+        <>
+          <ObjGroup title="Quarterly" items={quarterly} />
+          <ObjGroup title="Annual" items={annual} />
+        </>
+      )}
 
       <Modal open={showObjModal} onClose={() => setShowObjModal(false)} title="New Objective">
         <div className="space-y-4">
@@ -350,10 +367,10 @@ export default function Strategy() {
     <div className="p-4 lg:p-6">
       <PageHeader title="Strategy" subtitle="OKRs, AI business intelligence, and long-horizon planning" />
 
-      <div className="flex gap-1 bg-base-850 p-1 rounded-xl mb-6 w-fit">
+      <div className="flex gap-1 bg-base-800 border border-base-700 p-1 rounded-lg mb-6 w-fit">
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-150
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150
               ${tab === t.id ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
             {t.label}
           </button>

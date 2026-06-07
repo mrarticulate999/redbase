@@ -484,10 +484,10 @@ export default function Calendar() {
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-1 bg-base-850 p-1 rounded-xl mb-5 w-fit">
+      <div className="flex gap-1 bg-base-800 border border-base-700 p-1 rounded-lg mb-5 w-fit">
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-150
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150
               ${tab === t.id ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
             {t.label}
           </button>
