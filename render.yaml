@@ -50,3 +50,5 @@ services:
         sync: false                  # optional
       - key: GOOGLE_REDIRECT_URI
         sync: false                  # optional: https://<service>.onrender.com/api/calendar/oauth/callback
+      - key: ANTHROPIC_API_KEY
+        sync: false                  # Strategy → Director Brief (claude-haiku); set in dashboard
