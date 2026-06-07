@@ -2,71 +2,160 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { initials } from './ui';
 
-// Compact inline icon set (stroke-based, inherit currentColor).
-const Icon = ({ d, paths }) => (
+const Icon = ({ d, paths, className = 'h-4 w-4 shrink-0' }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-    strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
+    strokeLinecap="round" strokeLinejoin="round" className={className}>
     {paths ? paths.map((p, i) => <path key={i} d={p} />) : <path d={d} />}
   </svg>
 );
 
-const NAV = [
-  { to: '/calendar', label: 'Calendar', icon: <Icon paths={['M8 2v4', 'M16 2v4', 'M3 10h18', 'M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z']} /> },
-  { to: '/communications', label: 'Comms', icon: <Icon d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /> },
-  { to: '/tasks', label: 'Tasks', icon: <Icon paths={['M9 11l3 3L22 4', 'M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11']} /> },
-  { to: '/finance', label: 'Finance', icon: <Icon paths={['M12 1v22', 'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6']} /> },
-  { to: '/learning', label: 'Learning', icon: <Icon paths={['M22 10v6', 'M2 10l10-5 10 5-10 5z', 'M6 12v5c0 1 2 3 6 3s6-2 6-3v-5']} /> },
-  { to: '/clients', label: 'Clients', icon: <Icon paths={['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2', 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M23 21v-2a4 4 0 0 0-3-3.87', 'M16 3.13a4 4 0 0 1 0 7.75']} /> },
+const NAV_PRIMARY = [
+  {
+    to: '/calendar',
+    label: 'Calendar',
+    icon: <Icon paths={['M8 2v4', 'M16 2v4', 'M3 10h18', 'M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z']} />,
+  },
+  {
+    to: '/communications',
+    label: 'Comms',
+    icon: <Icon d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
+  },
+  {
+    to: '/tasks',
+    label: 'Tasks',
+    icon: <Icon paths={['M9 11l3 3L22 4', 'M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11']} />,
+  },
+  {
+    to: '/finance',
+    label: 'Finance',
+    icon: <Icon paths={['M12 1v22', 'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6']} />,
+  },
+  {
+    to: '/learning',
+    label: 'Learning',
+    icon: <Icon paths={['M22 10v6', 'M2 10l10-5 10 5-10 5z', 'M6 12v5c0 1 2 3 6 3s6-2 6-3v-5']} />,
+  },
+  {
+    to: '/clients',
+    label: 'Clients',
+    icon: <Icon paths={['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2', 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M23 21v-2a4 4 0 0 0-3-3.87', 'M16 3.13a4 4 0 0 1 0 7.75']} />,
+  },
 ];
+
+const NAV_SECONDARY = [
+  {
+    to: '/strategy',
+    label: 'Strategy',
+    icon: <Icon paths={['M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22', 'M18 18h4', 'M18 6h4', 'M2 6h1.9c1.5 0 2.8.9 3.3 2.3']} />,
+  },
+  {
+    to: '/swarm',
+    label: 'Swarm OS',
+    icon: <Icon paths={['M13 2L3 14h9l-1 8 10-12h-9l1-8z']} />,
+    badge: 'BETA',
+  },
+];
+
+function NavItem({ item, onClose }) {
+  return (
+    <NavLink
+      to={item.to}
+      onClick={onClose}
+      className={({ isActive }) =>
+        `group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150
+        ${isActive
+          ? 'bg-sidebar-active text-sidebar-active-text'
+          : 'text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover'}`
+      }
+    >
+      {item.icon}
+      <span className="flex-1">{item.label}</span>
+      {item.badge && (
+        <span className="text-[9px] font-bold tracking-wider bg-accent/20 text-accent-glow px-1.5 py-0.5 rounded">
+          {item.badge}
+        </span>
+      )}
+    </NavLink>
+  );
+}
+
+const TEAM_ITEM = {
+  to: '/team',
+  label: 'Team',
+  icon: <Icon paths={['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2', 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M23 21v-2a4 4 0 0 0-3-3.87', 'M16 3.13a4 4 0 0 1 0 7.75']} />,
+};
 
 export default function Sidebar({ open, onClose }) {
   const { user, logout } = useAuth();
 
   return (
     <>
-      {/* Mobile backdrop */}
-      {open && <div className="fixed inset-0 z-30 bg-black/60 md:hidden" onClick={onClose} />}
+      {open && (
+        <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={onClose} />
+      )}
 
       <aside
-        className={`fixed z-40 md:static inset-y-0 left-0 w-60 bg-base-900 border-r border-base-700
-          flex flex-col transition-transform duration-200
+        className={`fixed z-40 md:static inset-y-0 left-0 w-56 bg-sidebar-bg border-r border-sidebar-border
+          flex flex-col transition-transform duration-200 select-none
           ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
       >
-        <div className="flex items-center gap-2 px-5 h-16 border-b border-base-700">
-          <span className="h-3 w-3 rounded-sm bg-accent shadow-[0_0_12px_2px] shadow-accent/60" />
-          <span className="font-mono font-bold tracking-widest text-gray-100">REDBASE</span>
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 px-4 h-14 border-b border-sidebar-border shrink-0">
+          <div className="h-6 w-6 rounded bg-accent flex items-center justify-center shadow-green-glow">
+            <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5">
+              <rect x="1" y="1" width="6" height="6" rx="1" fill="white" />
+              <rect x="9" y="1" width="6" height="6" rx="1" fill="white" opacity="0.6" />
+              <rect x="1" y="9" width="6" height="6" rx="1" fill="white" opacity="0.6" />
+              <rect x="9" y="9" width="6" height="6" rx="1" fill="white" opacity="0.3" />
+            </svg>
+          </div>
+          <span className="font-mono font-bold tracking-[0.15em] text-sidebar-text text-sm">REDBASE</span>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={onClose}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors
-                ${isActive
-                  ? 'bg-accent/15 text-accent-glow border border-accent/30'
-                  : 'text-gray-400 hover:text-gray-100 hover:bg-base-800 border border-transparent'}`
-              }
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </NavLink>
+        {/* Primary nav */}
+        <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
+          <p className="section-header px-3 text-sidebar-muted/60 mb-2">Operations</p>
+          {NAV_PRIMARY.map((item) => (
+            <NavItem key={item.to} item={item} onClose={onClose} />
           ))}
+
+          <div className="my-3 border-t border-sidebar-border/50" />
+          <p className="section-header px-3 text-sidebar-muted/60 mb-2">Intelligence</p>
+          {NAV_SECONDARY.map((item) => (
+            <NavItem key={item.to} item={item} onClose={onClose} />
+          ))}
+
+          {user?.role === 'admin' && (
+            <>
+              <div className="my-3 border-t border-sidebar-border/50" />
+              <p className="section-header px-3 text-sidebar-muted/60 mb-2">Admin</p>
+              <NavItem item={TEAM_ITEM} onClose={onClose} />
+            </>
+          )}
         </nav>
 
-        <div className="border-t border-base-700 p-3">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <div className="h-9 w-9 rounded-full bg-accent/20 text-accent-glow grid place-items-center text-sm font-semibold">
+        {/* User profile */}
+        <div className="border-t border-sidebar-border p-3 shrink-0">
+          <div className="flex items-center gap-2.5 px-1 py-1 mb-2">
+            <div
+              className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+              style={{ backgroundColor: '#16A34A' }}
+            >
               {initials(user?.username || '?')}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm text-gray-100">{user?.username}</p>
-              <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+              <p className="truncate text-sm font-medium text-sidebar-text">{user?.username}</p>
+              <p className="text-[11px] text-sidebar-muted capitalize">{user?.role}</p>
             </div>
           </div>
-          <button onClick={logout} className="btn-ghost w-full mt-2 py-1.5 text-xs">
+          <button
+            onClick={logout}
+            className="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium
+              text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover transition-colors"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             Sign out
           </button>
         </div>

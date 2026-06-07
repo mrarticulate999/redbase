@@ -8,6 +8,9 @@ import Tasks from './pages/Tasks';
 import Finance from './pages/Finance';
 import Learning from './pages/Learning';
 import Clients from './pages/Clients';
+import Strategy from './pages/Strategy';
+import SwarmOS from './pages/SwarmOS';
+import Team from './pages/Team';
 
 export default function App() {
   return (
@@ -27,6 +30,9 @@ export default function App() {
         <Route path="/finance" element={<Finance />} />
         <Route path="/learning" element={<Learning />} />
         <Route path="/clients" element={<Clients />} />
+        <Route path="/strategy" element={<Strategy />} />
+        <Route path="/swarm" element={<SwarmOS />} />
+        <Route path="/team" element={<Team />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/calendar" replace />} />

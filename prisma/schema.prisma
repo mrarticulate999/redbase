@@ -65,6 +65,8 @@ model User {
   assignedTasks    Task[]             @relation("TaskAssignee")
   learningProgress LearningProgress[]
   googleToken      GoogleToken?
+  milestones       Milestone[]
+  objectives       Objective[]
 }
 
 model Message {
@@ -175,4 +177,44 @@ model GoogleToken {
   expiresAt    DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Milestone {
+  id          String   @id @default(uuid())
+  title       String
+  date        DateTime
+  category    String
+  timeframe   String
+  description String   @default("")
+  status      String   @default("planned")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime @default(now())
+
+  @@index([timeframe])
+  @@index([date])
+}
+
+model Objective {
+  id         String      @id @default(uuid())
+  title      String
+  timeframe  String
+  status     String      @default("active")
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  keyResults KeyResult[]
+  createdAt  DateTime    @default(now())
+
+  @@index([timeframe])
+}
+
+model KeyResult {
+  id          String    @id @default(uuid())
+  title       String
+  target      Float
+  current     Float     @default(0)
+  unit        String    @default("%")
+  objective   Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  objectiveId String
+  createdAt   DateTime  @default(now())
 }

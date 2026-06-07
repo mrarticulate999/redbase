@@ -10,3 +10,4 @@ coverage/
 .vite/
 *.timestamp-*.mjs
 prisma/dev.db
+.claude/
