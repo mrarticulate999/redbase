@@ -44,16 +44,23 @@ async function getAuthorizedClient(userId) {
 
   // Refresh proactively if expired and we hold a refresh token.
   if (stored.expiresAt && new Date(stored.expiresAt).getTime() < Date.now() + 60_000 && storedRefresh) {
-    const { credentials } = await oauth2.refreshAccessToken();
-    await prisma.googleToken.update({
-      where: { userId },
-      data: {
-        accessToken: encrypt(credentials.access_token),
-        refreshToken: encrypt(credentials.refresh_token || storedRefresh),
-        expiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : stored.expiresAt,
-      },
-    });
-    oauth2.setCredentials(credentials);
+    try {
+      const { credentials } = await oauth2.refreshAccessToken();
+      await prisma.googleToken.update({
+        where: { userId },
+        data: {
+          accessToken: encrypt(credentials.access_token),
+          refreshToken: encrypt(credentials.refresh_token || storedRefresh),
+          expiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : stored.expiresAt,
+        },
+      });
+      oauth2.setCredentials(credentials);
+    } catch (refreshErr) {
+      // Token is invalid (secret changed, revoked, etc.) — clear it so the
+      // frontend sees "not connected" and prompts to reconnect.
+      await prisma.googleToken.deleteMany({ where: { userId } });
+      return null;
+    }
   }
 
   return oauth2;
@@ -168,14 +175,27 @@ router.get(
     }
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2 });
-    const { data } = await calendar.events.list({
-      calendarId: 'primary',
-      timeMin: start.toISOString(),
-      timeMax: end.toISOString(),
-      singleEvents: true,
-      orderBy: 'startTime',
-      maxResults: 250,
-    });
+    let data;
+    try {
+      const resp = await calendar.events.list({
+        calendarId: 'primary',
+        timeMin: start.toISOString(),
+        timeMax: end.toISOString(),
+        singleEvents: true,
+        orderBy: 'startTime',
+        maxResults: 250,
+      });
+      data = resp.data;
+    } catch (calErr) {
+      // If Google rejects our credentials (401/403), clear the token and tell
+      // the client to reconnect rather than returning a generic 500.
+      const status = calErr.status || calErr.code;
+      if (status === 401 || status === 403) {
+        await prisma.googleToken.deleteMany({ where: { userId: req.user.id } });
+        return res.status(409).json({ error: 'Google Calendar authentication expired. Please reconnect.', connected: false });
+      }
+      throw calErr;
+    }
 
     const events = (data.items || []).map((e) => ({
       id: e.id,

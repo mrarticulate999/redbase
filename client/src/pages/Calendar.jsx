@@ -32,7 +32,7 @@ function buildMonthGrid(year, month) {
 }
 
 // ── Events sub-tab ─────────────────────────────────────────────────────────
-function EventsCalendar({ status, onConnect, onDisconnect }) {
+function EventsCalendar({ status, onConnect, onDisconnect, onStatusRefresh }) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -54,9 +54,14 @@ function EventsCalendar({ status, onConnect, onDisconnect }) {
         `/calendar/events?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}`
       );
       setEvents(events);
-    } catch (err) { setError(err); }
+    } catch (err) {
+      // 409 means the stored token is now invalid — reload connection status so
+      // the "Connect Google Calendar" screen appears automatically.
+      if (err.status === 409) { onStatusRefresh?.(); return; }
+      setError(err);
+    }
     finally { setLoading(false); }
-  }, [connected, year, month]);
+  }, [connected, year, month, onStatusRefresh]);
 
   useEffect(() => { loadMonth(); }, [loadMonth]);
 
@@ -212,7 +217,7 @@ function TasksCalendar() {
   const [selected, setSelected] = useState(today);
 
   useEffect(() => {
-    api.get('/tasks').then(setTasks).catch(setError).finally(() => setLoading(false));
+    api.get('/tasks').then(r => setTasks(r.tasks || [])).catch(setError).finally(() => setLoading(false));
   }, []);
 
   const cells = buildMonthGrid(year, month);
@@ -498,7 +503,7 @@ export default function Calendar() {
         {tab === 'events' && (
           statusError ? <ErrorBanner error={statusError} onRetry={loadStatus} />
           : status === null ? <Spinner label="Loading calendar…" />
-          : <EventsCalendar status={status} onConnect={connect} onDisconnect={disconnect} />
+          : <EventsCalendar status={status} onConnect={connect} onDisconnect={disconnect} onStatusRefresh={loadStatus} />
         )}
         {tab === 'tasks' && <TasksCalendar />}
         {tab === 'planning' && <PlanningCalendar />}
