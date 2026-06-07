@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,27 +16,46 @@ body,
 
 body {
   margin: 0;
-  background-color: #F9FAFB;
-  color: #111827;
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* Light scrollbars */
+@layer base {
+  /* Crisp, slightly tightened headings — the SaaS look */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.018em;
+  }
+  h1 { font-weight: 700; }
+  /* Numbers line up in tables/KPIs */
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+}
+
+/* Refined cool-gray scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #D1D5DB #F3F4F6;
+  scrollbar-color: #CBD5E1 transparent;
 }
 *::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
-  border-radius: 3px;
+  background: #CBD5E1;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+  background-clip: content-box;
 }
 *::-webkit-scrollbar-track {
-  background: #F3F4F6;
+  background: transparent;
 }
 
 @layer components {
@@ -42,35 +63,37 @@ body {
     @apply bg-white border border-base-700 rounded-xl shadow-card;
   }
   .card-hover {
-    @apply card hover:shadow-card-hover transition-shadow duration-200;
+    @apply card transition-all duration-200 hover:shadow-card-hover hover:border-base-600/40 hover:-translate-y-0.5;
   }
   .input {
     @apply w-full bg-white border border-base-700 rounded-lg px-3 py-2 text-sm text-gray-900
-           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent
-           transition-colors;
+           placeholder-gray-400 shadow-[inset_0_1px_2px_rgb(15_23_42/0.04)]
+           focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent
+           transition-all duration-150;
   }
   .label {
-    @apply block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5;
+    @apply block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1.5;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
-           transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold
+           tracking-tightish transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2
+           focus:ring-offset-white active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
+           disabled:active:scale-100;
   }
   .btn-primary {
-    @apply btn bg-accent hover:bg-accent-dim text-white focus:ring-accent shadow-sm;
+    @apply btn bg-accent hover:bg-accent-dim text-white focus:ring-accent/50 shadow-btn;
   }
   .btn-blue {
-    @apply btn bg-brand-blue hover:bg-brand-blue-dim text-white focus:ring-brand-blue shadow-sm;
+    @apply btn bg-brand-blue hover:bg-brand-blue-dim text-white focus:ring-brand-blue/50 shadow-btn;
   }
   .btn-ghost {
-    @apply btn bg-white hover:bg-base-850 text-gray-700 border border-base-700 focus:ring-gray-300;
+    @apply btn bg-white hover:bg-base-850 text-gray-700 border border-base-700 hover:border-base-600/50 focus:ring-gray-300 shadow-btn;
   }
   .btn-danger {
-    @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm;
+    @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500/50 shadow-btn;
   }
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold tracking-tightish;
   }
   .badge-green {
     @apply badge bg-accent-light text-accent-dim;
@@ -88,6 +111,6 @@ body {
     @apply badge bg-base-850 text-gray-600;
   }
   .section-header {
-    @apply text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3;
+    @apply text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-3;
   }
 }

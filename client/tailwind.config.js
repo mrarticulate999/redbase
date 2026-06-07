@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Main surface palette (light mode)
+        // Main surface palette — cool neutral (slate) ramp for a crisp, technical feel
         base: {
           950: '#FFFFFF',
-          900: '#F9FAFB',
-          850: '#F3F4F6',
-          800: '#E5E7EB',
-          700: '#D1D5DB',
-          600: '#9CA3AF',
+          900: '#F8FAFC', // app background
+          850: '#F1F5F9', // subtle fills / hover
+          800: '#EAEEF3', // light dividers
+          700: '#E2E8F0', // borders (soft, crisp)
+          600: '#94A3B8', // muted icons / hairlines
         },
         // Primary accent — green
         accent: {
@@ -28,22 +28,28 @@ export default {
         },
         // Sidebar-specific (dark)
         sidebar: {
-          bg: '#0D0D0D',
-          border: '#262626',
-          hover: '#1C1C1C',
-          active: '#052e16',
-          'active-text': '#4ade80',
-          text: '#F9FAFB',
-          muted: '#6B7280',
+          bg: '#0A0A0B',
+          border: '#1F1F23',
+          hover: '#18181B',
+          active: '#0B2E1A',
+          'active-text': '#4ADE80',
+          text: '#FAFAFA',
+          muted: '#71717A',
         },
       },
       fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
+      letterSpacing: {
+        tightish: '-0.011em',
+      },
       boxShadow: {
-        card: '0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08)',
-        'card-hover': '0 4px 12px 0 rgb(0 0 0 / 0.12)',
-        'green-glow': '0 0 20px rgb(22 163 74 / 0.3)',
+        // Soft, cool-tinted, layered — crisp without looking heavy
+        card: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.05)',
+        'card-hover': '0 6px 20px -4px rgb(15 23 42 / 0.12), 0 2px 6px -2px rgb(15 23 42 / 0.06)',
+        'green-glow': '0 0 0 1px rgb(22 163 74 / 0.2), 0 4px 14px -2px rgb(22 163 74 / 0.35)',
+        'btn': '0 1px 2px 0 rgb(15 23 42 / 0.08)',
       },
     },
   },
