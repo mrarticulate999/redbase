@@ -85,6 +85,10 @@ app.use(
     origin(origin, callback) {
       // Allow same-origin / server-to-server (no Origin header) and whitelisted origins.
       if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      // The SPA and API share a Vercel deployment, but the host varies per deploy
+      // (preview + production hash URLs). Allow this project's *.vercel.app origins.
+      // Auth is a Bearer JWT (not cookies), so CORS isn't the CSRF boundary here.
+      if (/^https:\/\/redbase-[a-z0-9-]+\.vercel\.app$/.test(origin)) return callback(null, true);
       return callback(new Error(`Origin ${origin} not allowed by CORS.`));
     },
     credentials: true,
