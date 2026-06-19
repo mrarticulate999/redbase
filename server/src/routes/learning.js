@@ -1,4 +1,7 @@
-// Security Learning Pathway: tracks, items, per-user progress, completion stats.
+// Learning section — four roadmap tracks (Track → Module → Item) with
+// per-founder progress and goals. All authenticated founders can READ everyone's
+// progress; each can only WRITE their own (enforced via req.user.id, never a
+// client-supplied member id).
 const express = require('express');
 const { body, param } = require('express-validator');
 
@@ -10,65 +13,64 @@ const asyncHandler = require('../lib/asyncHandler');
 const router = express.Router();
 router.use(requireAuth);
 
-// Returns all items grouped by track, each with this user's completion flag and
-// team completion counts. Also returns overall individual/team percentages.
+// Friendly display names for the founders (falls back to username).
+const DISPLAY_NAMES = {
+  grantj05: 'Grant',
+  abehalim: 'Abe',
+  rjlee: 'Remington',
+};
+const displayName = (username) => DISPLAY_NAMES[username] || username;
+
+// Full learning state: tracks + nested modules/items, the founder roster,
+// every member's completed item ids, and all goals.
 router.get(
   '/',
   asyncHandler(async (req, res) => {
-    const [items, userCount, allProgress] = await Promise.all([
-      prisma.learningItem.findMany({
-        orderBy: [{ track: 'asc' }, { order: 'asc' }],
+    const [tracks, members, progress, goals] = await Promise.all([
+      prisma.learningTrack.findMany({
+        orderBy: { sortOrder: 'asc' },
         include: {
-          progress: {
-            where: { completed: true },
-            select: { userId: true },
+          modules: {
+            orderBy: { sortOrder: 'asc' },
+            include: { items: { orderBy: { sortOrder: 'asc' } } },
           },
         },
       }),
-      prisma.user.count(),
+      prisma.user.findMany({ select: { id: true, username: true }, orderBy: { createdAt: 'asc' } }),
       prisma.learningProgress.findMany({
-        where: { userId: req.user.id, completed: true },
-        select: { learningItemId: true },
+        where: { completed: true },
+        select: { userId: true, itemId: true },
+      }),
+      prisma.learningGoal.findMany({
+        select: { userId: true, trackId: true, targetDate: true, note: true },
       }),
     ]);
 
-    const myCompleted = new Set(allProgress.map((p) => p.learningItemId));
-
-    const tracks = {};
-    let teamCompletions = 0;
-    for (const item of items) {
-      if (!tracks[item.track]) tracks[item.track] = { track: item.track, items: [] };
-      const completedByCount = item.progress.length;
-      teamCompletions += completedByCount;
-      tracks[item.track].items.push({
-        id: item.id,
-        track: item.track,
-        title: item.title,
-        description: item.description,
-        resourceUrl: item.resourceUrl,
-        estimatedHours: item.estimatedHours,
-        order: item.order,
-        completedByMe: myCompleted.has(item.id),
-        completedByCount,
-      });
+    // progressByMember: { [userId]: [itemId, ...] }
+    const progressByMember = {};
+    for (const m of members) progressByMember[m.id] = [];
+    for (const p of progress) {
+      (progressByMember[p.userId] ||= []).push(p.itemId);
     }
 
-    const totalItems = items.length;
-    const individualPct = totalItems > 0 ? Math.round((myCompleted.size / totalItems) * 100) : 0;
-    const teamPossible = totalItems * Math.max(userCount, 1);
-    const teamPct = teamPossible > 0 ? Math.round((teamCompletions / teamPossible) * 100) : 0;
-
     res.json({
-      tracks: Object.values(tracks),
-      stats: { totalItems, individualPct, teamPct, userCount },
+      me: req.user.id,
+      members: members.map((m) => ({
+        id: m.id,
+        username: m.username,
+        name: displayName(m.username),
+      })),
+      tracks,
+      progressByMember,
+      goals,
     });
   })
 );
 
-// Toggle / set completion for the current user on a learning item.
+// Set completion for the CURRENT user on an item (write-your-own only).
 router.put(
-  '/:itemId/progress',
-  [param('itemId').isUUID(), body('completed').isBoolean()],
+  '/items/:itemId/progress',
+  [param('itemId').isString().notEmpty(), body('completed').isBoolean()],
   handleValidation,
   asyncHandler(async (req, res) => {
     const item = await prisma.learningItem.findUnique({ where: { id: req.params.itemId } });
@@ -76,11 +78,11 @@ router.put(
 
     const completed = req.body.completed;
     const progress = await prisma.learningProgress.upsert({
-      where: { userId_learningItemId: { userId: req.user.id, learningItemId: item.id } },
+      where: { userId_itemId: { userId: req.user.id, itemId: item.id } },
       update: { completed, completedAt: completed ? new Date() : null },
       create: {
         userId: req.user.id,
-        learningItemId: item.id,
+        itemId: item.id,
         completed,
         completedAt: completed ? new Date() : null,
       },
@@ -89,31 +91,27 @@ router.put(
   })
 );
 
-// Add a new learning resource to a track.
-router.post(
-  '/',
+// Set / clear the CURRENT user's goal for a track (target date + optional note).
+router.put(
+  '/goals/:trackId',
   [
-    body('track').isString().trim().notEmpty().withMessage('Track is required.'),
-    body('title').isString().trim().notEmpty().withMessage('Title is required.'),
-    body('description').optional().isString().trim(),
-    body('resourceUrl').optional().isString().trim(),
-    body('estimatedHours').optional().isFloat({ min: 0 }),
+    param('trackId').isString().notEmpty(),
+    body('targetDate').optional({ nullable: true }).isISO8601(),
+    body('note').optional({ nullable: true }).isString().trim(),
   ],
   handleValidation,
   asyncHandler(async (req, res) => {
-    const b = req.body;
-    const count = await prisma.learningItem.count({ where: { track: b.track } });
-    const item = await prisma.learningItem.create({
-      data: {
-        track: b.track,
-        title: b.title,
-        description: b.description || '',
-        resourceUrl: b.resourceUrl || '',
-        estimatedHours: b.estimatedHours != null ? Number(b.estimatedHours) : 1,
-        order: count,
-      },
+    const track = await prisma.learningTrack.findUnique({ where: { id: req.params.trackId } });
+    if (!track) return res.status(404).json({ error: 'Track not found.' });
+
+    const targetDate = req.body.targetDate ? new Date(req.body.targetDate) : null;
+    const note = req.body.note || '';
+    const goal = await prisma.learningGoal.upsert({
+      where: { userId_trackId: { userId: req.user.id, trackId: track.id } },
+      update: { targetDate, note },
+      create: { userId: req.user.id, trackId: track.id, targetDate, note },
     });
-    res.status(201).json({ item });
+    res.json({ goal });
   })
 );
 
