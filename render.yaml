@@ -15,7 +15,7 @@ services:
     # even when NODE_ENV=production. Both root and client deps need this.
     buildCommand: npm install --production=false && npm --prefix client install --production=false && npm --prefix client run build && npx prisma generate
     # Apply migrations + (idempotent) seed on every deploy, then start the API.
-    startCommand: npx prisma migrate deploy && node prisma/seed.js && node prisma/seed-crm.js && node server/src/index.js
+    startCommand: npx prisma migrate deploy && node prisma/seed.js && node prisma/seed-crm.js && node prisma/seed-learning.js && node server/src/index.js
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:

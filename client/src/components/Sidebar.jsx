@@ -76,12 +76,8 @@ const NAV_SECONDARY = [
     label: 'Strategy',
     icon: <Icon paths={['M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22', 'M18 18h4', 'M18 6h4', 'M2 6h1.9c1.5 0 2.8.9 3.3 2.3']} />,
   },
-  {
-    to: '/swarm',
-    label: 'Swarm OS',
-    icon: <Icon paths={['M13 2L3 14h9l-1 8 10-12h-9l1-8z']} />,
-    badge: 'BETA',
-  },
+  // Swarm OS is hidden from nav until it has a real backend (simulated only).
+  // Route + page code retained at /swarm — re-add here to surface it.
 ];
 
 function NavItem({ item, onClose }) {

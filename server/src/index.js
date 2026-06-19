@@ -155,18 +155,22 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error.' });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`REDBASE API listening on http://localhost:${PORT}`);
-});
+// Only bind a port when run directly (local dev / Render / `node index.js`).
+// On Vercel the app is imported as a serverless handler and must NOT listen.
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`REDBASE API listening on http://localhost:${PORT}`);
+  });
 
-// Graceful shutdown.
-async function shutdown() {
-  console.log('\nShutting down REDBASE...');
-  server.close();
-  await prisma.$disconnect();
-  process.exit(0);
+  // Graceful shutdown.
+  async function shutdown() {
+    console.log('\nShutting down REDBASE...');
+    server.close();
+    await prisma.$disconnect();
+    process.exit(0);
+  }
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
 
 module.exports = app;
