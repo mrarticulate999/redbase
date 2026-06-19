@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm install --prefix client && npm run build --prefix client && prisma generate",
+  "buildCommand": "npm install --prefix client --include=dev && npm run build --prefix client && npx prisma generate",
   "outputDirectory": "client/dist",
   "framework": null,
   "functions": {
