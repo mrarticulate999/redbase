@@ -7,24 +7,30 @@ export default {
         // Main surface palette — cool neutral (slate) ramp for a crisp, technical feel
         base: {
           950: '#FFFFFF',
-          900: '#F8FAFC', // app background
-          850: '#F1F5F9', // subtle fills / hover
-          800: '#EAEEF3', // light dividers
-          700: '#E2E8F0', // borders (soft, crisp)
+          900: '#F7F8FA', // app background (a touch warmer/quieter than pure slate-50)
+          850: '#F1F4F8', // subtle fills / hover
+          800: '#E8ECF2', // light dividers
+          700: '#E0E5EC', // borders (soft, crisp)
           600: '#94A3B8', // muted icons / hairlines
         },
-        // Primary accent — green
+        // Ink — deep near-black for headings (more confident than slate-900)
+        ink: '#0B1220',
+        // Primary accent — green (the single confident brand action color)
         accent: {
-          DEFAULT: '#16A34A',
-          dim: '#15803D',
+          DEFAULT: '#15924B',
+          dim: '#0F7A3D',
           glow: '#22C55E',
-          light: '#DCFCE7',
+          light: '#E6F6EC',
         },
-        // Secondary accent — blue
+        // Blue is data-viz ONLY now (no longer a second brand action color)
         brand: {
           blue: '#2563EB',
           'blue-dim': '#1D4ED8',
           'blue-light': '#EFF6FF',
+        },
+        // Data-visualization ramp (charts only) — distinct from brand actions
+        viz: {
+          1: '#15924B', 2: '#2563EB', 3: '#0891B2', 4: '#D97706', 5: '#7C3AED', 6: '#DB2777',
         },
         // Sidebar-specific (dark)
         sidebar: {
@@ -53,12 +59,15 @@ export default {
         'brand-mark': '0 0 0 1px rgb(34 197 94 / 0.25), 0 4px 16px -4px rgb(34 197 94 / 0.45)',
       },
       backgroundImage: {
-        // Brand signature — green→blue, the "Norwall / REDBASE" identity
-        'brand-gradient': 'linear-gradient(135deg, #16A34A 0%, #15803D 45%, #1D4ED8 100%)',
-        'brand-gradient-soft': 'linear-gradient(135deg, #22C55E 0%, #2563EB 100%)',
+        // Brand signature — single green family (deep→bright), an intentional
+        // "secure console" mark rather than an AI-slop green→blue gradient.
+        'brand-gradient': 'linear-gradient(150deg, #0F7A3D 0%, #15924B 55%, #1FB85C 100%)',
+        'brand-gradient-soft': 'linear-gradient(135deg, #15924B 0%, #1FB85C 100%)',
         // Subtle radial glow for the console sidebar header
-        'sidebar-glow': 'radial-gradient(130% 70% at 50% -10%, rgba(34,197,94,0.12), transparent 65%)',
-        'grid-faint': 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+        'sidebar-glow': 'radial-gradient(130% 70% at 50% -10%, rgba(34,197,94,0.14), transparent 65%)',
+        // Signature detail: faint engineering grid + hairline scanline for headers
+        'grid-faint': 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
+        'console-grid': 'linear-gradient(rgba(11,18,32,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(11,18,32,0.025) 1px, transparent 1px)',
       },
     },
   },

@@ -218,3 +218,201 @@ model KeyResult {
   objectiveId String
   createdAt   DateTime  @default(now())
 }
+
+// ============================================================================
+// CRM / CloudGuard sales engine
+// Embedded sales CRM for the land-and-expand motion (DMV law-firm beachhead,
+// US-wide prospecting). `Company` = a prospect/lead firm; distinct from the
+// `Client` model above, which represents signed/engaged customers.
+// ============================================================================
+
+enum Vertical {
+  law
+  accounting
+  ria
+  other
+}
+
+enum PersonaRole {
+  economic_buyer
+  champion
+  it
+  other
+}
+
+enum ServiceType {
+  posture_assessment
+  red_teaming
+  remediation
+  ai_enablement
+}
+
+enum ActivityKind {
+  call
+  email
+  note
+  meeting
+  task
+}
+
+enum RelatedKind {
+  company
+  contact
+  deal
+  ticket
+}
+
+enum TicketStatus {
+  open
+  pending
+  resolved
+  closed
+}
+
+enum TicketPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum LeadStatus {
+  new
+  working
+  nurture
+  converted
+  disqualified
+}
+
+model Company {
+  id                String      @id @default(uuid())
+  name              String
+  vertical          Vertical    @default(law)
+  website           String?
+  domain            String?     @unique          // dedup key for prospecting
+  linkedinUrl       String?
+  state             String?
+  county            String?
+  city              String?
+  attorneyCount     Int?
+  staffCount        Int?
+  practiceAreas     String[]    @default([])
+  independent       Boolean     @default(true)
+  aiAdoptionSignals Json        @default("{}")
+  triggerEvents     Json        @default("[]")
+  priorityScore     Int         @default(0)
+  geoTier           String      @default("us")   // dmv_core | dmv_state | adjacent | us
+  disqualified      Boolean     @default(false)
+  leadStatus        LeadStatus  @default(new)
+  source            String      @default("manual") // clay | generated | referral | manual | import
+  owner             String?
+  createdAt         DateTime    @default(now())
+
+  contacts Contact[]
+  deals    Deal[]
+  tickets  Ticket[]
+
+  @@index([priorityScore])
+  @@index([leadStatus])
+  @@index([disqualified])
+  @@index([state])
+}
+
+model Contact {
+  id          String      @id @default(uuid())
+  company     Company?    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  companyId   String?
+  firstName   String
+  lastName    String
+  title       String?
+  personaRole PersonaRole @default(other)
+  email       String?
+  phone       String?
+  createdAt   DateTime    @default(now())
+
+  @@index([companyId])
+}
+
+model Deal {
+  id            String      @id @default(uuid())
+  company       Company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId     String?
+  name          String
+  serviceType   ServiceType @default(posture_assessment)
+  stage         String      @default("new") // references PipelineStage.key
+  amount        Decimal     @db.Decimal(12, 2) @default(0)
+  probability   Int         @default(5)
+  expectedClose DateTime?
+  source        String?
+  owner         String?
+  createdAt     DateTime    @default(now())
+
+  @@index([companyId])
+  @@index([stage])
+}
+
+model Activity {
+  id          String       @id @default(uuid())
+  relatedType RelatedKind
+  relatedId   String
+  type        ActivityKind @default(note)
+  body        String       @default("")
+  dueAt       DateTime?
+  completed   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+
+  @@index([relatedType, relatedId])
+  @@index([type])
+}
+
+model Ticket {
+  id              String         @id @default(uuid())
+  company         Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  companyId       String?
+  contactId       String?
+  subject         String
+  status          TicketStatus   @default(open)
+  priority        TicketPriority @default(medium)
+  assignee        String?
+  resolutionNotes String?
+  openedAt        DateTime       @default(now())
+  resolvedAt      DateTime?
+
+  @@index([companyId])
+  @@index([status])
+}
+
+model PipelineStage {
+  id          String @id @default(uuid())
+  key         String @unique
+  label       String
+  probability Int    @default(0)
+  position    Int    @default(0)
+}
+
+model Segment {
+  id         String   @id @default(uuid())
+  name       String
+  filterJson Json     @default("{}")
+  createdAt  DateTime @default(now())
+}
+
+model ScoringConfig {
+  id        Int      @id @default(1)
+  weights   Json
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model ProspectRun {
+  id         String   @id @default(uuid())
+  source     String   // clay | generated
+  requested  Int      @default(0)
+  discovered Int      @default(0)
+  qualified  Int      @default(0)
+  inserted   Int      @default(0)
+  activeAfter Int     @default(0)
+  note       String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}

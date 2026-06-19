@@ -25,6 +25,12 @@ const calendarRoutes = require('./routes/calendar');
 const milestoneRoutes = require('./routes/milestones');
 const objectiveRoutes = require('./routes/objectives');
 const strategyRoutes = require('./routes/strategy');
+const companyRoutes = require('./routes/companies');
+const contactRoutes = require('./routes/contacts');
+const dealRoutes = require('./routes/deals');
+const activityRoutes = require('./routes/activities');
+const ticketRoutes = require('./routes/tickets');
+const crmRoutes = require('./routes/crm');
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '4000', 10);
@@ -113,6 +119,12 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/milestones', milestoneRoutes);
 app.use('/api/objectives', objectiveRoutes);
 app.use('/api/strategy', strategyRoutes);
+app.use('/api/crm/companies', companyRoutes);
+app.use('/api/crm/contacts', contactRoutes);
+app.use('/api/crm/deals', dealRoutes);
+app.use('/api/crm/activities', activityRoutes);
+app.use('/api/crm/tickets', ticketRoutes);
+app.use('/api/crm', crmRoutes);
 
 // Example of a route gated to a specific role (admin-only smoke endpoint).
 app.get('/api/admin/ping', requireAuth, (req, res) => {

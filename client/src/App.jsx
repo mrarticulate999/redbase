@@ -11,6 +11,11 @@ import Clients from './pages/Clients';
 import Strategy from './pages/Strategy';
 import SwarmOS from './pages/SwarmOS';
 import Team from './pages/Team';
+import CrmDashboard from './pages/crm/Dashboard';
+import CrmLeads from './pages/crm/Leads';
+import CrmPipeline from './pages/crm/Pipeline';
+import CrmTickets from './pages/crm/Tickets';
+import CrmSegments from './pages/crm/Segments';
 
 export default function App() {
   return (
@@ -33,6 +38,11 @@ export default function App() {
         <Route path="/strategy" element={<Strategy />} />
         <Route path="/swarm" element={<SwarmOS />} />
         <Route path="/team" element={<Team />} />
+        <Route path="/crm" element={<CrmDashboard />} />
+        <Route path="/crm/leads" element={<CrmLeads />} />
+        <Route path="/crm/pipeline" element={<CrmPipeline />} />
+        <Route path="/crm/tickets" element={<CrmTickets />} />
+        <Route path="/crm/segments" element={<CrmSegments />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/calendar" replace />} />

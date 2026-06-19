@@ -42,6 +42,34 @@ const NAV_PRIMARY = [
   },
 ];
 
+const NAV_CRM = [
+  {
+    to: '/crm',
+    label: 'CRM Overview',
+    icon: <Icon paths={['M3 3v18h18', 'M7 14l3-3 3 3 4-5']} />,
+  },
+  {
+    to: '/crm/leads',
+    label: 'Leads',
+    icon: <Icon paths={['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', 'M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z', 'M12 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2z']} />,
+  },
+  {
+    to: '/crm/pipeline',
+    label: 'Pipeline',
+    icon: <Icon paths={['M4 4h4v16H4z', 'M10 4h4v10h-4z', 'M16 4h4v7h-4z']} />,
+  },
+  {
+    to: '/crm/tickets',
+    label: 'Support',
+    icon: <Icon paths={['M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z']} />,
+  },
+  {
+    to: '/crm/segments',
+    label: 'Segments',
+    icon: <Icon paths={['M3 5h18', 'M6 12h12', 'M10 19h4']} />,
+  },
+];
+
 const NAV_SECONDARY = [
   {
     to: '/strategy',
@@ -126,6 +154,12 @@ export default function Sidebar({ open, onClose }) {
         <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
           <p className="section-header px-3 text-sidebar-muted/60 mb-2">Operations</p>
           {NAV_PRIMARY.map((item) => (
+            <NavItem key={item.to} item={item} onClose={onClose} />
+          ))}
+
+          <div className="my-3 border-t border-sidebar-border/50" />
+          <p className="section-header px-3 text-sidebar-muted/60 mb-2">Revenue</p>
+          {NAV_CRM.map((item) => (
             <NavItem key={item.to} item={item} onClose={onClose} />
           ))}
 

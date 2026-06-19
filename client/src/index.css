@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
+/* Inter is loaded non-render-blocking from index.html (avoids blocking first paint). */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,8 +15,8 @@ body,
 
 body {
   margin: 0;
-  background-color: #F8FAFC;
-  color: #0F172A;
+  background-color: #F7F8FA;
+  color: #0B1220;
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
@@ -113,6 +112,50 @@ body {
   .section-header {
     @apply text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2.5;
   }
+
+  /* ── Operative Console signature system (CRM + elevated surfaces) ───────── */
+  /* Mono "section code" eyebrow, e.g.  02 / PIPELINE  — a recurring motif. */
+  .eyebrow {
+    @apply font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-400;
+  }
+  .eyebrow-accent { @apply eyebrow text-accent-dim; }
+
+  /* Flat, hairline-framed panel — crisper than the soft card for data-dense views. */
+  .panel {
+    @apply bg-white border border-base-700 rounded-lg;
+  }
+  .panel-head {
+    @apply flex items-center justify-between gap-3 px-4 h-12 border-b border-base-800;
+  }
+  .panel-title { @apply text-[13px] font-semibold text-ink tracking-tightish; }
+
+  /* KPI tile — big tabular-mono number over a mono label. Signature of the console. */
+  .kpi {
+    @apply relative overflow-hidden bg-white border border-base-700 rounded-lg px-4 py-3.5;
+  }
+  .kpi-num {
+    @apply text-[26px] leading-none font-bold text-ink tabular-nums tracking-tight;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-label { @apply mt-1.5 eyebrow; }
+  /* Thin accent rule that reads as an instrument readout, not a slop left-border. */
+  .kpi-rule { @apply absolute top-0 left-0 h-0.5 w-full; }
+
+  /* Hairline data table */
+  .dt { @apply w-full text-sm; }
+  .dt thead th {
+    @apply px-3 py-2 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 border-b border-base-800;
+  }
+  .dt tbody td { @apply px-3 py-2.5 border-b border-base-800/70 align-middle; }
+  .dt tbody tr:hover { @apply bg-base-850/60; }
+
+  /* Segmented control */
+  .seg { @apply inline-flex rounded-md border border-base-700 bg-base-850 p-0.5; }
+  .seg-item { @apply px-2.5 py-1 text-xs font-medium rounded text-gray-500 transition-colors; }
+  .seg-item-active { @apply bg-white text-ink shadow-btn; }
+
+  /* Score chip — tabular mono so numbers align in lists */
+  .score-chip { @apply inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-bold tabular-nums; }
 
   /* ── Brand / console identity ───────────────────────────────────────── */
   .brand-text {

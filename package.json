@@ -13,6 +13,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:push": "prisma db push",
     "seed": "node prisma/seed.js",
+    "seed:crm": "node prisma/seed-crm.js",
     "setup": "prisma generate && prisma migrate deploy && node prisma/seed.js",
     "client:install": "npm --prefix client install",
     "client:dev": "npm --prefix client run dev",
